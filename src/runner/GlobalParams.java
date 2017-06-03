@@ -15,6 +15,13 @@ public class GlobalParams {
 	 * On app start server started automatically if value is true
 	 */
 	public static boolean AUTOMATIC_SERVER_START = false;
+	
+	
+	
+	/**
+	 * Maximum number of allowed connected clients 
+	 */
+	public static int MAX_NUMBER_OF_CONNECTED_CLIENTS = 10;
 
 
 	// /**

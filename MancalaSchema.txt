@@ -1,0 +1,44 @@
+
+drop database if exists mancaladb;
+create database mancaladb;
+use mancaladb;
+
+
+drop table if exists Users;
+drop table if exists Games;
+drop table if exists ScoreTable;
+
+
+create table Users (
+  userID integer not null AUTO_INCREMENT, 
+  userEmail varchar(100) not null,
+  userName varchar(50) not null,
+  password varchar(255) not null,
+  bestScore integer not null default 0,   
+  constraint pkUsers primary key (userID));
+
+
+create table Games (
+  gameID integer not null AUTO_INCREMENT, 
+  user1ID integer not null,
+  user2ID integer not null,
+  isCompleted boolean not null default 0,
+  winnerId integer,
+  winnerSscore integer default 0,
+  constraint pkCars primary key (gameID),
+  constraint fk_User1 foreign key (user1ID) references Users(userID) on delete cascade,
+  constraint fk_User2 foreign key (user2ID) references Users(userID) on delete cascade);
+  
+
+
+insert into Users values (
+  NULL, 'zina1@email.com', 'zina1', 'password', 0);
+  insert into Users values (
+  NULL, 'zina2@email.com', 'zina2', 'password', 0);
+  insert into Users values (
+  NULL, 'zina2@email.com', 'zina3', 'password', 0);
+  
+
+
+commit;
+
