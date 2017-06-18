@@ -42,12 +42,18 @@ public class Client implements Runnable{
 
 			Message messageFromClient;
 			do {
-				//System.out.println("Waiting for client message");
+				System.out.println("Waiting for client message");
 				messageFromClient = (Message) getStreamFromClient().readObject();
-				//System.out.println("Server: read message " + messageFromClient);
+				System.out.println("Server: read message " + messageFromClient);
 				new Thread(new HandleMessage(messageFromClient, this)).start();
 
 			} while (!(messageFromClient instanceof ClientDisconnectMsg));
+			
+			if (messageFromClient instanceof ClientDisconnectMsg){
+				System.out.println("Disconnect message");
+				clientListener.getServerController().removeOnlineClient(this);
+				
+			}
 
 		} catch (IOException e) {
 			System.err.println(e);
@@ -55,7 +61,7 @@ public class Client implements Runnable{
 			e.printStackTrace();
 		} finally {
 			try {
-//				 connectToClient.close();
+//				 socket.close();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

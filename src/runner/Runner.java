@@ -1,5 +1,7 @@
 package runner;
 
+import client.ClientController;
+import server.MancalaServerController;
 import server.db.DBBuilder;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -55,7 +57,7 @@ public class Runner extends Application {
 			serverBtn.setOnAction(e -> {
 				
 					try {
-//						ServerController controller = new ServerController(new Stage());
+						MancalaServerController controller = new MancalaServerController(new Stage());
 						
 				} catch (Exception e1) {
 					e1.printStackTrace();
@@ -67,12 +69,12 @@ public class Runner extends Application {
 		} else {
 			serverBtn.setDisable(true);
 			clientBtn.setDisable(false);
-//			ServerController controller = new ServerController(new Stage());
+			MancalaServerController controller = new MancalaServerController(new Stage());
 		}
 
 		clientBtn.setOnAction(e -> {
 			try {
-				
+				ClientController clientController = new ClientController(new Stage());
 //				ZRaceGameController raceClient = new ZRaceGameController(new Stage());
 			} catch (Exception e1) {
 				e1.printStackTrace();

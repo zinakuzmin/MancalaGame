@@ -3,7 +3,7 @@ package runner;
 public class GlobalParams {
 	
 	/** The parameter for creating clean Database schema */
-	public static boolean SHOULD_INIT_DB = true;
+	public static boolean SHOULD_INIT_DB = false;
 
 	/**
 	 * Background image path
@@ -14,7 +14,7 @@ public class GlobalParams {
 	/**
 	 * On app start server started automatically if value is true
 	 */
-	public static boolean AUTOMATIC_SERVER_START = false;
+	public static boolean AUTOMATIC_SERVER_START = true;
 	
 	
 	

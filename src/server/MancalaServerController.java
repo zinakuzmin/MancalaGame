@@ -22,19 +22,19 @@ public class MancalaServerController {
 	
 	
 	
-	public MancalaServerController(){
+	public MancalaServerController(Stage stage){
 		onlineClients = new ArrayList<Client>();
 		db = new DBHandler();
 		validator = new Validator();
 		clientListenerTask = new ClientListener(this);
 		clientsListenerThread = new Thread(clientListenerTask);
 		clientsListenerThread.start();
-		try {
-			new ServerUI(new TextArea()).start(new Stage());
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//		try {
+//			new ServerUI(new TextArea()).start(new Stage());
+//		} catch (Exception e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 		
 		
 	}
@@ -42,6 +42,14 @@ public class MancalaServerController {
 	
 	
 	
+//
+//	public MancalaServerController(Stage stage) {
+//		// TODO Auto-generated constructor stub
+//	}
+
+
+
+
 
 	public ArrayList<Client> getOnlineClients() {
 		return onlineClients;
@@ -51,6 +59,7 @@ public class MancalaServerController {
 	public synchronized ActionResult addOnlineClient(Client client){
 		if (onlineClients.size() < GlobalParams.MAX_NUMBER_OF_CONNECTED_CLIENTS){
 			onlineClients.add(client);
+			System.out.println("Added new client " + onlineClients.size());
 			return new ActionResult(true, null);
 		}
 		else{
@@ -63,6 +72,7 @@ public class MancalaServerController {
 		if (onlineClients.size() > 0 && onlineClients.contains(client)){
 			onlineClients.remove(client);
 			disconnectClient(client);
+			System.out.println("Removed online client " + onlineClients.size());
 			return new ActionResult(true, null);
 		}
 		
@@ -74,9 +84,9 @@ public class MancalaServerController {
 	public synchronized ActionResult registerUser(User user){
 		ActionResult validationResult = validateUserDetails(user);
 		if (validationResult.isActionSucceeded()){
-			db.insertUser(user);
-			if (user.getUserID() != 0){
-				return new ActionResult(true, null);
+			User userFromDB = db.insertUser(user);
+			if (userFromDB.getUserID() != 0){
+				return new ActionResult(true, null, userFromDB);
 				
 			}
 			else {
@@ -102,30 +112,28 @@ public class MancalaServerController {
 	
 	/**ToDo - add password decryption */
 	public synchronized ActionResult userLogin(User user){
-		if (user.getUserID() > 0){
+//		if (user.getUserID() > 0){
 			if (db.isUserExist(user)){
-				User userFromDB = db.getUserByIDAsObject(user.getUserID());		
+				System.out.println("User from client "+ user);
+				User userFromDB = db.getUserByEmailAsObject(user.getUserEmail());
+				System.out.println("User from db "+ userFromDB);
 				if (userFromDB.getUserEmail().equals(user.getUserEmail()) && userFromDB.getPassword().equals(user.getPassword()))
-					return new ActionResult(true, null);
+					return new ActionResult(true, null, userFromDB);
 				else
 					return new ActionResult(false, "Wrong password");
 			}
 			else
 				return new ActionResult(false, "User does not exist");
 			
-		}
-		return new ActionResult(false, "User does not exist");
+//		}
+//		return new ActionResult(false, "User does not exist");
 		
 	}
 	
 	
 	public synchronized void disconnectClient(Client client){
-		try {
-			client.getSocket().close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		//			client.getSocket().close();
+		System.out.println("Disconnectiong client " + client);
 	}
 	
 	public synchronized void closeApp(){

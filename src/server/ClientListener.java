@@ -40,6 +40,7 @@ public class ClientListener implements Runnable{
 				while (threadShouldRun) {
 					socket = serverSocket.accept();
 					Client client = new Client(socket, this);
+					serverController.addOnlineClient(client);
 					new Thread(client).start();
 				}
 			} catch (IOException ex) {

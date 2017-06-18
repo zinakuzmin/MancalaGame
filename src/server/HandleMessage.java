@@ -2,10 +2,16 @@ package server;
 
 import java.util.ArrayList;
 
+
+
+import model.User;
 import protocol.ClientConnectMsg;
 import protocol.ClientLoginMsg;
 import protocol.ClientSignupMsg;
-import protocol.Message;
+import protocol.Message;import protocol.ServerLoginResponseMsg;import protocol.ServerSignupResponseMsg;
+
+
+
 
 
 public class HandleMessage implements Runnable {
@@ -36,16 +42,48 @@ public class HandleMessage implements Runnable {
 	 */
 	@Override
 	public void run() {
+		System.out.println(messageFromClient);
 		
 		if (messageFromClient instanceof ClientConnectMsg){
 			
 		}
 		
 		if (messageFromClient instanceof ClientSignupMsg){
+			User user = new User(((ClientSignupMsg) messageFromClient).getUserEmail(), ((ClientSignupMsg) messageFromClient).getUsername(), ((ClientSignupMsg) messageFromClient).getPassword(), 0);
+			ActionResult result = client.getClientListener().getServerController().registerUser(user);
+			new Thread(() -> {
+				try {
+				
+//					sendMessage(new ServerSignupResponseMsg(result));
+					client.getStreamToClient().writeObject(new ServerSignupResponseMsg(result));
+					client.getStreamToClient().flush();
+					
+				} catch (Exception e) {
+					
+					e.printStackTrace();
+				}
+			}).start();
 			
 		}
 		
 		else if (messageFromClient instanceof ClientLoginMsg){
+			
+//			User user = new User("", ((ClientLoginMsg) messageFromClient).getUsername(), ((ClientLoginMsg) messageFromClient).getPassword(), 0);
+			User user = new User(((ClientLoginMsg) messageFromClient).getUsername(), "", ((ClientLoginMsg) messageFromClient).getPassword(), 0);
+			ActionResult result = client.getClientListener().getServerController().userLogin(user);
+			
+			new Thread(() -> {
+				try {
+				
+//					sendMessage(new ServerLoginResponseMsg(result));
+					client.getStreamToClient().writeObject(new ServerLoginResponseMsg(result, null));
+					client.getStreamToClient().flush();
+					
+				} catch (Exception e) {
+					
+					e.printStackTrace();
+				}
+			}).start();
 			
 		}
 //		if (messageFromClient instanceof ClientConnectMsg){

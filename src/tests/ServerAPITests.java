@@ -1,29 +1,56 @@
 package tests;
 
+import javafx.stage.Stage;
+import model.User;
+
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
+import server.ActionResult;
+import server.MancalaServerController;
+
 public class ServerAPITests {
+	private static MancalaServerController serverController;
+	
+	@BeforeClass
+	public static void prepareToTest(){
+		serverController = new MancalaServerController(new Stage());
+		
+	}
+	
 	
 	
 	@Test
 	public void signupWithCorrectData(){
-		Assert.assertTrue(true);
+		User user = new User("zina@mail.com", "zinamail", "Password1!", 0) ;
+		ActionResult result = serverController.registerUser(user);
+		System.out.println("signupWithCorrectData : " + result);
+		Assert.assertTrue(result.isActionSucceeded());
 	}
 	
 	@Test
 	public void signupWithMissingUserName(){
-		Assert.assertFalse(false);
+		User user = new User("zina@mail.com", "", "Password1!", 0) ;
+		ActionResult result = serverController.registerUser(user);
+		System.out.println("signupWithMissingUserName: " + result);
+		Assert.assertFalse(result.isActionSucceeded());
 	}
 	
 	@Test
 	public void signupWithMissingEmail(){
-		Assert.assertFalse(false);
+		User user = new User("zina", "zinamail", "Password1!", 0) ;
+		ActionResult result = serverController.registerUser(user);
+		System.out.println("signupWithMissingEmail: " + result);
+		Assert.assertFalse(result.isActionSucceeded());
 	}
 	
 	@Test
 	public void signupWithSimplePassword(){
-		Assert.assertFalse(false);
+		User user = new User("zina@mail.com", "zinamail", "1234", 0) ;
+		ActionResult result = serverController.registerUser(user);
+		System.out.println("signupWithSimplePassword: " + result);
+		Assert.assertFalse(result.isActionSucceeded());
 	}
 	
 	

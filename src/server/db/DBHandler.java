@@ -36,23 +36,34 @@ public class DBHandler {
 	public synchronized User insertUser(User theUser) {
 		String theQuery = " insert into Users (userID, userEmail, userName, password, bestScore)"
 				+ " values (?, ?, ?, ?, ?)";
+		
 		try {
-			PreparedStatement preparedStmt = theConnection.prepareStatement(
-					theQuery, Statement.RETURN_GENERATED_KEYS);
-			preparedStmt.setInt(1, 0);
-			preparedStmt.setString(2, theUser.getUserEmail().toLowerCase());
-			preparedStmt.setString(3, theUser.getUserName().toLowerCase());
-			preparedStmt.setString(4, theUser.getPassword());
-			preparedStmt.setDouble(5, theUser.getBestScore());
-
-			preparedStmt.execute();
-			ResultSet rs = preparedStmt.getGeneratedKeys();
-			rs.next();
-			int auto_id = rs.getInt(1);
-			theUser.setUserID(auto_id);
-			System.out.println(theUser);
-			preparedStmt.close();
-			return theUser;
+			
+			if (!isUserExist(theUser)){
+			
+				PreparedStatement preparedStmt = theConnection.prepareStatement(
+						theQuery, Statement.RETURN_GENERATED_KEYS);
+				preparedStmt.setInt(1, 0);
+				preparedStmt.setString(2, theUser.getUserEmail().toLowerCase());
+				preparedStmt.setString(3, theUser.getUserName().toLowerCase());
+				preparedStmt.setString(4, theUser.getPassword());
+				preparedStmt.setDouble(5, theUser.getBestScore());
+	
+				preparedStmt.execute();
+				ResultSet rs = preparedStmt.getGeneratedKeys();
+				rs.next();
+				int auto_id = rs.getInt(1);
+				theUser.setUserID(auto_id);
+				System.out.println(theUser);
+				preparedStmt.close();
+				return theUser;
+			}
+			
+			else{
+				theUser.setUserID(0);
+				return theUser;
+			}
+				
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -89,8 +100,10 @@ public class DBHandler {
 	}
 	
 	public synchronized boolean isUserExist(User theUser) {
-		String theQuery = " select  * from Users where userId = '"
-				+ theUser.getUserID();
+//		String theQuery = " select  * from Users where userId = '"
+//				+ theUser.getUserID();
+		String theQuery = " select  * from Users where userEmail = '"
+				+ theUser.getUserEmail()+ "'";
 		ResultSet res = executeQuery(theQuery);
 		try {
 			if (res.first())
@@ -127,6 +140,20 @@ public class DBHandler {
 		return (User) convertResultSetToObject(getUserByID(userID), "User");
 
 	}
+	
+	public synchronized ResultSet getUserByEmail(String email){
+		String theQuery = "select * from Users where userEmail = '"
+				+ email + "'";
+		return executeQuery(theQuery);
+	}
+	
+	
+	public synchronized User getUserByEmailAsObject(String email) {
+
+		return (User) convertResultSetToObject(getUserByEmail(email), "User");
+
+	}
+	
 	
 	
 	
@@ -165,6 +192,11 @@ public class DBHandler {
 	 */
 	public synchronized ResultSet getAllUsers() {
 		String theQuery = "select * from Users";
+		return executeQuery(theQuery);
+	}
+	
+	public synchronized ResultSet getAllUsersOrderByScore() {
+		String theQuery = "select userName, bestScore from Users order by bestScore";
 		return executeQuery(theQuery);
 	}
 	

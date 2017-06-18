@@ -28,9 +28,9 @@ public class Validator {
 	
 	
 	/**Whole combination is means, 6 to 20 characters string with at least one digit, 
-	 * one upper case letter, one lower case letter and one special symbol (“@#$%”). 
+	 * one upper case letter, one lower case letter and one special symbol (“@#$%!”). 
 	 * This regular expression pattern is very useful to implement a strong and complex password.*/
-	private static final String PASSWORD_PATTERN = "((?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%]).{6,20})";
+	private static final String PASSWORD_PATTERN = "((?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%!]).{6,20})";
 
 	public Validator() {
 		emailPattern = Pattern.compile(EMAIL_PATTERN);
