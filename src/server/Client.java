@@ -4,12 +4,15 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.UUID;
 
 import protocol.ClientDisconnectMsg;
 import protocol.Message;
 
 
 public class Client implements Runnable{
+	private int userID;
+	private String clientId;
 	private Socket socket;
 	private ClientListener clientListener;
 	private ObjectInputStream streamFromClient;
@@ -21,6 +24,7 @@ public class Client implements Runnable{
 
 
 	public Client(Socket socket, ClientListener clientListener) {
+		clientId = UUID.randomUUID().toString();
 		setSocket(socket);
 		setClientListener(clientListener);
 		try {
@@ -107,6 +111,36 @@ public class Client implements Runnable{
 
 	public void setStreamToClient(ObjectOutputStream streamToClient) {
 		this.streamToClient = streamToClient;
+	}
+
+
+	public int getUserID() {
+		return userID;
+	}
+
+
+	public void setUserID(int userID) {
+		this.userID = userID;
+	}
+
+
+	public String getClientId() {
+		return clientId;
+	}
+
+
+	public void setClientId(String clientId) {
+		this.clientId = clientId;
+	}
+	
+	public synchronized void sendMessage(Message message){
+		try {
+			streamToClient.writeObject(message);
+			streamToClient.flush();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 

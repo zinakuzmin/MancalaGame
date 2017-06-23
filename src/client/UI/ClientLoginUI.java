@@ -122,7 +122,18 @@ public class ClientLoginUI extends Application {
 					loginResult.setText(clientController.getLoginResult()
 							.getMessage());
 					clientController.setLoginResult(null);
+					
 				} else {
+					
+					while (clientController.getOnlineUsers() == null) {
+
+						System.out.println(clientController.getOnlineUsers());
+						try {
+							Thread.sleep(200);
+						} catch (InterruptedException e1) {
+							e1.printStackTrace();
+						}
+					}
 					ClientLobbyUI lobby = new ClientLobbyUI(clientController);
 					try {
 						lobby.start(primaryStage);

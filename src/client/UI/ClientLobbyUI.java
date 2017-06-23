@@ -2,11 +2,13 @@ package client.UI;
 
 
 import java.sql.ResultSet;
+import java.util.Map;
 
 import javafx.application.Application;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
@@ -19,8 +21,6 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
@@ -32,16 +32,10 @@ import client.ClientController;
 public class ClientLobbyUI extends Application{
 	private ClientController clientController;
 	private Label lblWelcome = new Label("Welcome user");
-	
-	
-	private Scene sceneChat;
-	private TextArea taViewMsg = new TextArea();
-	private Label lblUserName = new Label("User Name:");
-	private TextField tfNewMsg = new TextField();
 	private Button btnStartGame = new Button("Start Game");
 	private ListView<String> lvOnlineUsers = new ListView<String>();
 
-	private Stage stage;
+//	private Stage stage;
 
 	private ObservableList<String> onlineUsersList = FXCollections
 			.observableArrayList();
@@ -70,18 +64,33 @@ public class ClientLobbyUI extends Application{
 	public void start(Stage stage) throws Exception {
 		
 		lblWelcome.setText(clientController.getUser().getUserName());
-		onlineUsersList.add("Zina");
-		onlineUsersList.add("Dima");
 		buildBehavior();
 		buildActivityViewer(stage);
 
 	}
 	
 	public void buildBehavior() {
+//		lvOnlineUsers.setItems((ObservableList<String>) clientController.getOnlineUsers());
 		lvOnlineUsers.setItems(onlineUsersList);
+		setOnlineUsers();
 	}
 	
-
+	public void setOnlineUsers(){
+		Map<String, String> onlineUsers = clientController.getOnlineUsers();
+		for (String key : onlineUsers.keySet()) {
+		    onlineUsersList.add(onlineUsers.get(key));
+		}
+		
+		
+//		Iterator it = onlineUsers.entrySet().iterator();
+//	    while (it.hasNext()) {
+//	        Map.Entry pair = (Map.Entry)it.next();
+//	        System.out.println(pair.getKey() + " = " + pair.getValue());
+//	        it.remove(); // avoids a ConcurrentModificationException
+//	    }
+	}
+	
+	
 	
 	public void buildActivityViewer(Stage stage) {
 
@@ -106,6 +115,21 @@ public class ClientLobbyUI extends Application{
 		stage.setScene(scene);
 //		stage.show();
 		
+		btnStartGame.setOnAction(new EventHandler<ActionEvent>() {
+			
+			@Override
+			public void handle(ActionEvent arg0) {
+				GameUI game = new GameUI(clientController);
+				try {
+					game.start(stage);
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+			}
+		});
+		
 		
 		stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
             @Override
@@ -120,32 +144,7 @@ public class ClientLobbyUI extends Application{
 	
 	private Tab createStartGameTab(Scene scene) {
 		Tab startGameTab = new Tab();
-		startGameTab.setClosable(false);
-
-//		Pane pane = new Pane();
-//
-//		Label activityLabel = new Label("View activity log");
-//		pane.getChildren().add(activityLabel);
-//
-//		pane.prefWidthProperty().bind(scene.widthProperty());
-//		pane.prefHeightProperty().bind(scene.heightProperty());
-//
-//		ScrollPane scroll = new ScrollPane();
-//
-//		scroll.layoutXProperty().bind(
-//				pane.widthProperty().divide(2)
-//						.subtract(scroll.widthProperty().divide(2)));
-//		scroll.layoutYProperty().bind(
-//				pane.heightProperty().divide(2)
-//						.subtract(scroll.heightProperty().divide(2)));
-//		scroll.setPrefSize(400, 400);
-//
-//		textArea.prefWidthProperty().bind(scroll.widthProperty());
-//		textArea.prefHeightProperty().bind(scroll.heightProperty());
-//		
-//		scroll.setContent(textArea);
-//
-//		pane.getChildren().addAll(scroll);
+		startGameTab.setClosable(true);	
 		
 		lvOnlineUsers.getSelectionModel().setSelectionMode(
 				SelectionMode.SINGLE);

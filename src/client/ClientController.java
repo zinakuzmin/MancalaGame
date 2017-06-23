@@ -5,6 +5,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Map;
 
 import model.User;
 import protocol.ClientConnectMsg;
@@ -46,6 +47,10 @@ public class ClientController {
 	private ActionResult signupResult;
 	
 	private User user;
+	
+	private String sessionID;
+	
+	private Map<String, String> onlineUsers;
 	
 //	private ArrayList<E>
 	
@@ -190,6 +195,22 @@ public class ClientController {
 
 	public void setSignupResult(ActionResult signupResult) {
 		this.signupResult = signupResult;
+	}
+
+	public Map<String, String> getOnlineUsers() {
+		return onlineUsers;
+	}
+
+	public void setOnlineUsers(Map<String, String> onlineUsers) {
+		this.onlineUsers = onlineUsers;
+	}
+
+	public String getSessionID() {
+		return sessionID;
+	}
+
+	public void setSessionID(String sessionID) {
+		this.sessionID = sessionID;
 	}
 
 }

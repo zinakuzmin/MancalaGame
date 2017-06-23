@@ -1,6 +1,12 @@
 package server;
 
+import java.io.IOException;
 import java.util.ArrayList;
+
+
+
+
+import java.util.Map;
 
 
 
@@ -8,7 +14,9 @@ import model.User;
 import protocol.ClientConnectMsg;
 import protocol.ClientLoginMsg;
 import protocol.ClientSignupMsg;
-import protocol.Message;import protocol.ServerLoginResponseMsg;import protocol.ServerSignupResponseMsg;
+import protocol.Message;import protocol.ServerClientConnectResponse;
+import protocol.ServerConnectedClientsResponse;
+import protocol.ServerLoginResponseMsg;import protocol.ServerSignupResponseMsg;
 
 
 
@@ -45,7 +53,7 @@ public class HandleMessage implements Runnable {
 		System.out.println(messageFromClient);
 		
 		if (messageFromClient instanceof ClientConnectMsg){
-			
+			client.sendMessage(new ServerClientConnectResponse(client.getClientId()));
 		}
 		
 		if (messageFromClient instanceof ClientSignupMsg){
@@ -71,6 +79,9 @@ public class HandleMessage implements Runnable {
 //			User user = new User("", ((ClientLoginMsg) messageFromClient).getUsername(), ((ClientLoginMsg) messageFromClient).getPassword(), 0);
 			User user = new User(((ClientLoginMsg) messageFromClient).getUsername(), "", ((ClientLoginMsg) messageFromClient).getPassword(), 0);
 			ActionResult result = client.getClientListener().getServerController().userLogin(user);
+			if (result.getObject() != null &&  ((User)result.getObject()).getUserID() != 0){
+				client.setUserID(((User)result.getObject()).getUserID());
+			}
 			
 			new Thread(() -> {
 				try {
@@ -78,6 +89,8 @@ public class HandleMessage implements Runnable {
 //					sendMessage(new ServerLoginResponseMsg(result));
 					client.getStreamToClient().writeObject(new ServerLoginResponseMsg(result, null));
 					client.getStreamToClient().flush();
+					Map<String, String> onlineUsers = client.getClientListener().getServerController().generateOpponentsList();
+					client.sendMessage(new ServerConnectedClientsResponse(onlineUsers));
 					
 				} catch (Exception e) {
 					
@@ -133,5 +146,7 @@ public class HandleMessage implements Runnable {
 	
 		
 	}
+	
+	
 
 }

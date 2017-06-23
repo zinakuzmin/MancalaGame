@@ -2,10 +2,13 @@ package client;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.rmi.server.ServerCloneException;
 import java.util.ArrayList;
 
 import model.User;
 import protocol.Message;
+import protocol.ServerClientConnectResponse;
+import protocol.ServerConnectedClientsResponse;
 import protocol.ServerLoginResponseMsg;
 import protocol.ServerSignupResponseMsg;
 import javafx.application.Platform;
@@ -43,7 +46,12 @@ public class ServerListener extends Thread{
 				System.out.println("Client got message");
 				System.out.println(message);
 				
-				if (message instanceof ServerSignupResponseMsg){
+				if (message instanceof ServerClientConnectResponse){
+					gameController.setSessionID(((ServerClientConnectResponse) message).getSesssionID());
+				}
+				
+				
+				else if (message instanceof ServerSignupResponseMsg){
 					gameController.setSignupResult(((ServerSignupResponseMsg) message).getResult());
 					
 				}
@@ -57,6 +65,10 @@ public class ServerListener extends Thread{
 						}
 						
 					}
+					
+				}
+				else if (message instanceof ServerConnectedClientsResponse){
+					gameController.setOnlineUsers(((ServerConnectedClientsResponse) message).getConnectedClients());
 					
 				}
 				
