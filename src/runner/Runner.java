@@ -1,6 +1,7 @@
 package runner;
 
 import client.ClientController;
+import client.UI.ClientLobbyUI;
 import server.MancalaServerController;
 import server.db.DBBuilder;
 import javafx.application.Application;
@@ -70,6 +71,21 @@ public class Runner extends Application {
 			serverBtn.setDisable(true);
 			clientBtn.setDisable(false);
 			MancalaServerController controller = new MancalaServerController(new Stage());
+		}
+		
+		
+		if (GlobalParams.FAST_START){
+			ClientController clientController1 = new ClientController(new Stage());
+			clientController1.sendLoginMessage("zina1@email.com", "password");
+			ClientLobbyUI lobbyZina1 = new ClientLobbyUI(clientController1);
+			Platform.runLater(lobbyZina1);
+			
+			
+			
+			ClientController clientController2 = new ClientController(new Stage());
+			clientController2.sendLoginMessage("zina2@email.com", "password");
+			ClientLobbyUI lobbyZina2 = new ClientLobbyUI(clientController2);
+			Platform.runLater(lobbyZina2);
 		}
 
 		clientBtn.setOnAction(e -> {

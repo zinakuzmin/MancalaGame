@@ -2,10 +2,12 @@ package server;
 
 public enum GameStatusEnum {
 	waiting,
-	yourTurn,
-	opponentTurn,
+	inProgress,
+	competed,
 	youWin,
 	youLost,
-	itsAtie
+	itsAtie,
+	aborted,
+	declined
 
 }

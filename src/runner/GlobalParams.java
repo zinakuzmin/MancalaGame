@@ -4,6 +4,14 @@ public class GlobalParams {
 	
 	/** The parameter for creating clean Database schema */
 	public static boolean SHOULD_INIT_DB = false;
+	
+	
+	
+	
+	/**
+	 * The parameter for internal user only. Automatic login as test users
+	 */
+	public static boolean FAST_START = true;
 
 	/**
 	 * Background image path

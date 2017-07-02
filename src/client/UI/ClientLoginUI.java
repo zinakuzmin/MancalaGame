@@ -1,5 +1,6 @@
 package client.UI;
 
+import java.io.File;
 import java.io.IOException;
 
 import protocol.ClientConnectMsg;
@@ -18,8 +19,15 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundImage;
+import javafx.scene.layout.BackgroundPosition;
+import javafx.scene.layout.BackgroundRepeat;
+import javafx.scene.layout.BackgroundSize;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
@@ -45,10 +53,17 @@ public class ClientLoginUI extends Application {
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 
-		primaryStage.setTitle("JavaFX Welcome");
+		primaryStage.setTitle("Mancala Game");
+		
+//		primaryStage.getIcons().add(new Image("MancalaGame/icon.jpg"));
+//		primaryStage.getIcons().add(new Image("c:\\afeka\\Agile\\MancalaGame\\MancalaGame\\icon.jpg"));
+		Image titleIcon = new Image(new File("icon.jpg").toURI().toString());
+		primaryStage.getIcons().add(titleIcon);
+		
+		
 
-		primaryStage.show();
 		buildLogin(primaryStage);
+		primaryStage.show();
 
 	}
 
@@ -60,20 +75,30 @@ public class ClientLoginUI extends Application {
 		grid.setVgap(10);
 		grid.setPadding(new Insets(25, 25, 25, 25));
 
-		Scene scene = new Scene(grid, 300, 275);
+		Scene scene = new Scene(grid, 630, 630);
 		primaryStage.setScene(scene);
+		
+		BackgroundImage myBI= new BackgroundImage(new Image(new File("background2.jpg").toURI().toString(),630,630,false,true),
+		        BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.DEFAULT,
+		          BackgroundSize.DEFAULT);
+		//then you set to your node
+		grid.setBackground(new Background(myBI));
+		
+		
 
-		Text scenetitle = new Text("Welcome");
-		scenetitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
+		Text scenetitle = new Text("                  Welcome");
+		scenetitle.setFont(Font.font("Tahoma", FontWeight.BOLD, 20));
 		grid.add(scenetitle, 0, 0, 2, 1);
 
 		Label userName = new Label("User Name:");
+		userName.setFont(Font.font("Tahoma", FontWeight.NORMAL, 15));
 		grid.add(userName, 0, 1);
 
 		TextField userTextField = new TextField();
 		grid.add(userTextField, 1, 1);
 
 		Label pw = new Label("Password:");
+		pw.setFont(Font.font("Tahoma", FontWeight.NORMAL, 15));
 		grid.add(pw, 0, 2);
 
 		PasswordField pwBox = new PasswordField();

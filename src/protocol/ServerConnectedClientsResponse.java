@@ -11,6 +11,7 @@ public class ServerConnectedClientsResponse extends Message{
 	private Map<String, String> connectedClients;
 	
 	public ServerConnectedClientsResponse(Map<String, String> connectedClients) {
+		super();
 		setConnectedClients(connectedClients);
 	}
 	
@@ -25,7 +26,7 @@ public class ServerConnectedClientsResponse extends Message{
 
 	@Override
 	public String toString() {
-		return "ServerConnectedClientsResponse [connectedClients="
+		return super.toString() + " ServerConnectedClientsResponse [connectedClients="
 				+ connectedClients + "]";
 	}
 	

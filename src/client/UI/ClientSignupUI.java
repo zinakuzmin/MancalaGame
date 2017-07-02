@@ -1,5 +1,7 @@
 package client.UI;
 
+import java.io.File;
+
 import client.ClientController;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
@@ -11,6 +13,12 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundImage;
+import javafx.scene.layout.BackgroundPosition;
+import javafx.scene.layout.BackgroundRepeat;
+import javafx.scene.layout.BackgroundSize;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
@@ -38,12 +46,12 @@ public class ClientSignupUI extends Application{
 
 		primaryStage.setTitle("Sign up page");
 
+		buildSignUp(primaryStage);
 		primaryStage.show();
-		buildLogin(primaryStage);
 
 	}
 
-	public void buildLogin(Stage primaryStage) {
+	public void buildSignUp(Stage primaryStage) {
 
 		GridPane grid = new GridPane();
 		grid.setAlignment(Pos.CENTER);
@@ -51,20 +59,29 @@ public class ClientSignupUI extends Application{
 		grid.setVgap(10);
 		grid.setPadding(new Insets(25, 25, 25, 25));
 
-		Scene scene = new Scene(grid, 300, 275);
+		Scene scene = new Scene(grid, 630, 630);
 		primaryStage.setScene(scene);
+		
+		BackgroundImage myBI= new BackgroundImage(new Image(new File("background2.jpg").toURI().toString(),630,630,false,true),
+		        BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.DEFAULT,
+		          BackgroundSize.DEFAULT);
+		//then you set to your node
+		grid.setBackground(new Background(myBI));
 
-		Text scenetitle = new Text("Welcome");
-		scenetitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
+		
+		Text scenetitle = new Text("");
+		scenetitle.setFont(Font.font("Tahoma", FontWeight.BOLD, 20));
 		grid.add(scenetitle, 0, 0, 2, 1);
 
 		Label userName = new Label("User Name:");
+		userName.setFont(Font.font("Tahoma", FontWeight.NORMAL, 15));
 		grid.add(userName, 0, 1);
 
 		TextField userTextField = new TextField();
 		grid.add(userTextField, 1, 1);
 		
 		Label userEmail = new Label("User Email:");
+		userEmail.setFont(Font.font("Tahoma", FontWeight.NORMAL, 15));
 		grid.add(userEmail, 0, 2);
 
 		TextField userEmailField = new TextField();
@@ -72,6 +89,7 @@ public class ClientSignupUI extends Application{
 
 
 		Label pw = new Label("Password:");
+		pw.setFont(Font.font("Tahoma", FontWeight.NORMAL, 15));
 		grid.add(pw, 0, 3);
 
 		PasswordField pwBox = new PasswordField();

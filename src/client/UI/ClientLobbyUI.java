@@ -1,10 +1,15 @@
 package client.UI;
 
 
+import java.io.File;
+import java.io.IOException;
 import java.sql.ResultSet;
 import java.util.Map;
 
+import protocol.ClientDisconnectMsg;
+import protocol.ClientStartGameMsg;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -21,19 +26,29 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.image.Image;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundImage;
+import javafx.scene.layout.BackgroundPosition;
+import javafx.scene.layout.BackgroundRepeat;
+import javafx.scene.layout.BackgroundSize;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
+import server.GameStatusEnum;
 import server.db.DBHandler;
 import client.ClientController;
+import client.OnlineUsersListener;
 
-public class ClientLobbyUI extends Application{
+public class ClientLobbyUI extends Application implements Runnable{
 	private ClientController clientController;
 	private Label lblWelcome = new Label("Welcome user");
 	private Button btnStartGame = new Button("Start Game");
 	private ListView<String> lvOnlineUsers = new ListView<String>();
+	private Stage stage;
+	private boolean RunOnlineUsersListener = true;
 
 //	private Stage stage;
 
@@ -62,32 +77,36 @@ public class ClientLobbyUI extends Application{
 	
 	@Override
 	public void start(Stage stage) throws Exception {
-		
+		this.stage = stage;
 		lblWelcome.setText(clientController.getUser().getUserName());
 		buildBehavior();
 		buildActivityViewer(stage);
+		
+		OnlineUsersListener onlineUsersListener = new OnlineUsersListener(this);
+		new Thread(onlineUsersListener).start();
+		
 
 	}
 	
 	public void buildBehavior() {
 //		lvOnlineUsers.setItems((ObservableList<String>) clientController.getOnlineUsers());
 		lvOnlineUsers.setItems(onlineUsersList);
-		setOnlineUsers();
+//		setOnlineUsers();
 	}
 	
 	public void setOnlineUsers(){
-		Map<String, String> onlineUsers = clientController.getOnlineUsers();
-		for (String key : onlineUsers.keySet()) {
-		    onlineUsersList.add(onlineUsers.get(key));
+		System.out.println("UPdating user list");
+		System.out.println("Before " + onlineUsersList);
+		Map<String, String> onlineUsersFromServer = clientController.getOnlineUsers();
+		
+		
+		System.out.println("List from server " + onlineUsersFromServer);
+		for (String key : onlineUsersFromServer.keySet()) {
+			if (!key.equals(clientController.getSessionID()) && !(onlineUsersList.contains(onlineUsersFromServer.get(key))))
+				onlineUsersList.add(onlineUsersFromServer.get(key));
 		}
+		System.out.println("After " + onlineUsersList);
 		
-		
-//		Iterator it = onlineUsers.entrySet().iterator();
-//	    while (it.hasNext()) {
-//	        Map.Entry pair = (Map.Entry)it.next();
-//	        System.out.println(pair.getKey() + " = " + pair.getValue());
-//	        it.remove(); // avoids a ConcurrentModificationException
-//	    }
 	}
 	
 	
@@ -95,13 +114,23 @@ public class ClientLobbyUI extends Application{
 	public void buildActivityViewer(Stage stage) {
 
 		stage.setTitle("Mancala Game");
+		Image titleIcon = new Image(new File("icon.jpg").toURI().toString());
+		stage.getIcons().add(titleIcon);
 
 		Group root = new Group();
-		Scene scene = new Scene(root, 500, 500, Color.WHITE);
+		Scene scene = new Scene(root, 630, 630, Color.GRAY);
 
 		TabPane tabPane = new TabPane();
 
 		BorderPane borderPane = new BorderPane();
+		
+		BackgroundImage myBI= new BackgroundImage(new Image(new File("runnerbck.jpg").toURI().toString(),630,630,false,true),
+		        BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.DEFAULT,
+		          BackgroundSize.DEFAULT);
+		//then you set to your node
+		borderPane.setBackground(new Background(myBI));
+		
+		
 
 		tabPane.getTabs().add(createStartGameTab(scene));
 		tabPane.getTabs().add(createDBViewerTab());
@@ -119,7 +148,15 @@ public class ClientLobbyUI extends Application{
 			
 			@Override
 			public void handle(ActionEvent arg0) {
-				GameUI game = new GameUI(clientController);
+				//clientController.setOpponentUserName(opponentUserName);
+				String selectedOpponent = lvOnlineUsers.getSelectionModel().getSelectedItem();
+				clientController.setOpponentUserName(selectedOpponent);
+				clientController.setOpponentSessionID(clientController.findOpponentByUsername(selectedOpponent));
+				GameUI game = new GameUI(clientController, true);
+//				game.setPlayer1(true);
+				clientController.setTheGame(game);
+				clientController.setGameStatus(GameStatusEnum.waiting);
+				clientController.sendMessageToServer(new ClientStartGameMsg(clientController.getSessionID(), clientController.getOpponentSessionID(), false));
 				try {
 					game.start(stage);
 				} catch (Exception e) {
@@ -132,11 +169,27 @@ public class ClientLobbyUI extends Application{
 		
 		
 		stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
-            @Override
-            public void handle(WindowEvent e) {
-                e.consume();
-            }
-        });
+
+			@Override
+			public void handle(WindowEvent event) {
+				try {
+					setRunOnlineUsersListener(false);
+					clientController.sendMessageToServer(new ClientDisconnectMsg());
+					stage.close();
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		});
+		
+		
+//		stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+//            @Override
+//            public void handle(WindowEvent e) {
+//                e.consume();
+//            }
+//        });
 		stage.show();
 
 	}
@@ -235,6 +288,23 @@ private void showContents(TableView tableView, DBHandler db) {
 		}
 	}
 
+	@Override
+	public void run() {
+		try {
+			start(new Stage());
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
 
+	public boolean isRunOnlineUsersListener() {
+		return RunOnlineUsersListener;
+	}
+
+	public void setRunOnlineUsersListener(boolean runOnlineUsersListener) {
+		RunOnlineUsersListener = runOnlineUsersListener;
+	}
 
 }

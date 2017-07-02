@@ -24,7 +24,7 @@ create table Games (
   user2ID integer not null,
   isCompleted boolean not null default 0,
   winnerId integer,
-  winnerSscore integer default 0,
+  winnerScore integer default 0,
   constraint pkCars primary key (gameID),
   constraint fk_User1 foreign key (user1ID) references Users(userID) on delete cascade,
   constraint fk_User2 foreign key (user2ID) references Users(userID) on delete cascade);
@@ -36,7 +36,7 @@ insert into Users values (
   insert into Users values (
   NULL, 'zina2@email.com', 'zina2', 'password', 0);
   insert into Users values (
-  NULL, 'zina2@email.com', 'zina3', 'password', 0);
+  NULL, 'zina3@email.com', 'zina3', 'password', 0);
   
 
 

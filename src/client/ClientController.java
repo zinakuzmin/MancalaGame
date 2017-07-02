@@ -13,7 +13,23 @@ import protocol.ClientLoginMsg;
 import protocol.ClientSignupMsg;
 import protocol.Message;
 import server.ActionResult;
+import server.GameStatusEnum;
 import client.UI.ClientLoginUI;
+import client.UI.GameApprovalUI;
+import client.UI.GameUI;
+import javafx.application.Platform;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 
@@ -34,6 +50,9 @@ public class ClientController {
 	 */
 	private ObjectOutputStream out;
 	
+	private Stage stage;
+	
+	
 	private boolean serverListenerActivated = false;
 	
 	private ClientLoginUI loginView;
@@ -50,7 +69,21 @@ public class ClientController {
 	
 	private String sessionID;
 	
+	private boolean hasActiveGame = false;
+	
+	private String opponentUserName = "";
+
+	
+	private String opponentSessionID = "";
+	
 	private Map<String, String> onlineUsers;
+	
+	private GameUI theGame = null;
+	
+	private String gameInitiator = "";
+	
+	
+	private GameStatusEnum gameStatus = GameStatusEnum.waiting;
 	
 //	private ArrayList<E>
 	
@@ -64,7 +97,7 @@ public class ClientController {
 	 * @param primaryStage
 	 */
 	public ClientController(Stage primaryStage) {
-		
+		stage = primaryStage;
 		
 		new Thread(() -> {
 			try {
@@ -90,7 +123,7 @@ public class ClientController {
 			}
 			System.out.println("start client GUI");
 			loginView = new ClientLoginUI(this);
-			loginView.start(new Stage());
+			loginView.start(stage);
 
 
 		} catch (Exception e) {
@@ -189,6 +222,37 @@ public class ClientController {
 		
 	}
 
+	public String findOpponentByUsername(String username){
+		for (String key : onlineUsers.keySet()) {
+			if (onlineUsers.get(key).equals(username))
+				return key;
+		}
+		return null;
+	}
+	
+	
+	public String findOpponentSession(String session){
+		for (String key : onlineUsers.keySet()) {
+			if (key.equals(session))
+				return key;
+		}
+		return null;
+	}
+	
+	
+	public void gameApproval(){
+		GameApprovalUI gameApproval = new GameApprovalUI(this);
+		try {
+			Platform.runLater(gameApproval);
+//			gameApproval.start(new Stage());
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	
+	
 	public ActionResult getSignupResult() {
 		return signupResult;
 	}
@@ -203,6 +267,8 @@ public class ClientController {
 
 	public void setOnlineUsers(Map<String, String> onlineUsers) {
 		this.onlineUsers = onlineUsers;
+		System.out.println("Client connected users " + onlineUsers);
+		
 	}
 
 	public String getSessionID() {
@@ -211,6 +277,62 @@ public class ClientController {
 
 	public void setSessionID(String sessionID) {
 		this.sessionID = sessionID;
+	}
+
+	public boolean isHasActiveGame() {
+		return hasActiveGame;
+	}
+
+	public void setHasActiveGame(boolean hasActiveGame) {
+		this.hasActiveGame = hasActiveGame;
+	}
+
+	public String getOpponentUserName() {
+		return opponentUserName;
+	}
+
+	public void setOpponentUserName(String opponentUserName) {
+		this.opponentUserName = opponentUserName;
+	}
+
+	public String getOpponentSessionID() {
+		return opponentSessionID;
+	}
+
+	public void setOpponentSessionID(String opponentSessionID) {
+		this.opponentSessionID = opponentSessionID;
+	}
+
+	public GameUI getTheGame() {
+		return theGame;
+	}
+
+	public void setTheGame(GameUI theGame) {
+		this.theGame = theGame;
+	}
+
+	public GameStatusEnum getGameStatus() {
+		return gameStatus;
+	}
+
+	public void setGameStatus(GameStatusEnum gameStatus) {
+		this.gameStatus = gameStatus;
+	}
+
+	public Stage getStage() {
+		return stage;
+	}
+
+	public void setStage(Stage stage) {
+		this.stage = stage;
+	}
+
+	public String getGameInitiator() {
+		return gameInitiator;
+	}
+
+	public void setGameInitiator(String gameInitiator) {
+		this.gameInitiator = gameInitiator;
 	}
 
 }

@@ -135,6 +135,8 @@ public class Client implements Runnable{
 	
 	public synchronized void sendMessage(Message message){
 		try {
+			System.out.println("Server sending message to client" + clientId + " "+ message);
+			streamToClient.reset();
 			streamToClient.writeObject(message);
 			streamToClient.flush();
 		} catch (IOException e) {

@@ -10,10 +10,14 @@ import java.util.Map;
 
 
 
+
+
 import model.User;
 import protocol.ClientConnectMsg;
 import protocol.ClientLoginMsg;
+import protocol.ClientMakeMoveMsg;
 import protocol.ClientSignupMsg;
+import protocol.ClientStartGameMsg;
 import protocol.Message;import protocol.ServerClientConnectResponse;
 import protocol.ServerConnectedClientsResponse;
 import protocol.ServerLoginResponseMsg;import protocol.ServerSignupResponseMsg;
@@ -99,6 +103,18 @@ public class HandleMessage implements Runnable {
 			}).start();
 			
 		}
+		
+		else if (messageFromClient instanceof ClientStartGameMsg){
+			if (((ClientStartGameMsg) messageFromClient).isStartGameApproved()){
+				client.getClientListener().getServerController().makeGameActive(((ClientStartGameMsg) messageFromClient).getPlayer1Session(), ((ClientStartGameMsg) messageFromClient).getPlayer2Session());
+			}
+			else
+				client.getClientListener().getServerController().startGame(((ClientStartGameMsg) messageFromClient).getPlayer1Session(), ((ClientStartGameMsg) messageFromClient).getPlayer2Session());
+		}
+		
+		else if (messageFromClient instanceof ClientMakeMoveMsg){
+			client.getClientListener().getServerController().makeMove(((ClientMakeMoveMsg) messageFromClient).getPlayer1SessionID(), ((ClientMakeMoveMsg) messageFromClient).getPlayer2SessionID(), ((ClientMakeMoveMsg) messageFromClient).getMoveSessionID(), ((ClientMakeMoveMsg) messageFromClient).getMovePitIndex());
+		}
 //		if (messageFromClient instanceof ClientConnectMsg){
 //			
 //			client.setUserId(((ClientConnectMsg) messageFromClient).getUserId());
@@ -124,19 +140,7 @@ public class HandleMessage implements Runnable {
 //			}).start();
 //
 //		}
-//		
-//		else if (messageFromClient instanceof ClientBetMsg){
-//			
-//			ArrayList<Bet> bets = ((ClientBetMsg)messageFromClient).getBets();
-//			
-//			for (Bet bet : bets) {
-//				client.getController().registerBet(bet);
-//				
-//			}
-//			client.getController().getLogger().logMessage(messageFromClient);
-//			
-//			
-//		}
+
 //		
 //		else if (messageFromClient instanceof ClientDisconnectMsg){
 //			client.getController().getLogger().logMessage(messageFromClient);

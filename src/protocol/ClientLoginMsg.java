@@ -11,6 +11,7 @@ public class ClientLoginMsg extends Message{
 	
 	
 	public ClientLoginMsg(String username, String password) {
+		super();
 		setUsername(username);
 		setPassword(password);
 	}
