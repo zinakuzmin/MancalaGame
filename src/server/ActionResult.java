@@ -13,10 +13,10 @@ public class ActionResult implements Serializable{
 	
 	
 
-	public ActionResult(boolean actionSucceeded, String message){
-		setActionSucceeded(actionSucceeded);
-		setMessage(message);
-	}
+//	public ActionResult(boolean actionSucceeded, String message){
+//		setActionSucceeded(actionSucceeded);
+//		setMessage(message);
+//	}
 	
 	public ActionResult(boolean actionSucceeded, String message, Object object){
 		setActionSucceeded(actionSucceeded);
@@ -54,13 +54,18 @@ public class ActionResult implements Serializable{
 		this.object = object;
 	}
 
-	
+
+
 
 	@Override
 	public String toString() {
 		return "ActionResult [actionSucceeded=" + actionSucceeded
-				+ ", message=" + message + "]";
+				+ ", message=" + message + ", object=" + object + "]";
 	}
+
+	
+
+
 
 	
 

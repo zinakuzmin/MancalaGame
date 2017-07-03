@@ -25,6 +25,7 @@ public class Client implements Runnable{
 
 	public Client(Socket socket, ClientListener clientListener) {
 		clientId = UUID.randomUUID().toString();
+		userID = 0;
 		setSocket(socket);
 		setClientListener(clientListener);
 		try {

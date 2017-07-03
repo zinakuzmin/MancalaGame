@@ -15,7 +15,7 @@ public class ServerAPITests {
 	
 	@BeforeClass
 	public static void prepareToTest(){
-		serverController = new MancalaServerController(new Stage());
+		serverController = new MancalaServerController();
 		
 	}
 	

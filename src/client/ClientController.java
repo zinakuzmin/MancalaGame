@@ -4,9 +4,9 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.util.ArrayList;
 import java.util.Map;
-
+import javafx.application.Platform;
+import javafx.stage.Stage;
 import model.User;
 import protocol.ClientConnectMsg;
 import protocol.ClientLoginMsg;
@@ -14,23 +14,10 @@ import protocol.ClientSignupMsg;
 import protocol.Message;
 import server.ActionResult;
 import server.GameStatusEnum;
+import client.UI.ClientLobbyUI;
 import client.UI.ClientLoginUI;
 import client.UI.GameApprovalUI;
 import client.UI.GameUI;
-import javafx.application.Platform;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
-import javafx.scene.text.Text;
-import javafx.stage.Stage;
 
 
 public class ClientController {
@@ -50,19 +37,42 @@ public class ClientController {
 	 */
 	private ObjectOutputStream out;
 	
+	/**
+	 * Primary stage for client application
+	 */
 	private Stage stage;
 	
+	/**
+	 * Lobby application reference
+	 */
+	private ClientLobbyUI lobby;
 	
+	
+	/**
+	 * Flag for indication 
+	 */
 	private boolean serverListenerActivated = false;
 	
+	/**
+	 * Login application reference
+	 */
 	private ClientLoginUI loginView;
 	
 	
+	/**
+	 * Server listener reference
+	 */
 	private ServerListener serverListener;
 	
+	/**
+	 * Login result from server
+	 */
 	private ActionResult loginResult;
 	
 	
+	/**
+	 * Sign up result from server
+	 */
 	private ActionResult signupResult;
 	
 	private User user;
@@ -73,7 +83,6 @@ public class ClientController {
 	
 	private String opponentUserName = "";
 
-	
 	private String opponentSessionID = "";
 	
 	private Map<String, String> onlineUsers;
@@ -82,14 +91,7 @@ public class ClientController {
 	
 	private String gameInitiator = "";
 	
-	
 	private GameStatusEnum gameStatus = GameStatusEnum.waiting;
-	
-//	private ArrayList<E>
-	
-	
-
-
 	
 
 	/**
@@ -109,7 +111,6 @@ public class ClientController {
 				sendConnectMessage();
 				serverListener = new ServerListener(in, this);
 				serverListener.start();
-//				new Thread(serverListener).start();
 
 			} catch (IOException ex) {
 				System.err.println(ex);
@@ -234,7 +235,7 @@ public class ClientController {
 	public String findOpponentSession(String session){
 		for (String key : onlineUsers.keySet()) {
 			if (key.equals(session))
-				return key;
+				return onlineUsers.get(key);
 		}
 		return null;
 	}
@@ -244,7 +245,6 @@ public class ClientController {
 		GameApprovalUI gameApproval = new GameApprovalUI(this);
 		try {
 			Platform.runLater(gameApproval);
-//			gameApproval.start(new Stage());
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -252,6 +252,13 @@ public class ClientController {
 	}
 	
 	
+	public void resetGame(){
+		setOpponentSessionID("");
+		setOpponentUserName("");
+		setTheGame(null);
+		setHasActiveGame(false);
+		setGameStatus(null);
+	}
 	
 	public ActionResult getSignupResult() {
 		return signupResult;
@@ -333,6 +340,14 @@ public class ClientController {
 
 	public void setGameInitiator(String gameInitiator) {
 		this.gameInitiator = gameInitiator;
+	}
+	
+	public ClientLobbyUI getLobby() {
+		return lobby;
+	}
+
+	public void setLobby(ClientLobbyUI lobby) {
+		this.lobby = lobby;
 	}
 
 }

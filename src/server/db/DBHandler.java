@@ -71,6 +71,27 @@ public class DBHandler {
 
 	}
 	
+	
+	public synchronized int updateUser(User user){
+		String theQuery = " update Users set bestScore = ? where userID = ?";
+
+		try {
+			PreparedStatement preparedStmt = theConnection
+					.prepareStatement(theQuery);
+			preparedStmt.setInt(1, user.getBestScore());
+			preparedStmt.setInt(2, user.getUserID());
+
+			int insertResult = preparedStmt.executeUpdate();
+
+			preparedStmt.close();
+			return insertResult;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return -1;
+		
+	}
+	
 	public synchronized Game insertGame(Game theGame) {
 		String theQuery = " insert into Games (gameID, user1ID, user2ID, isCompleted, winnerID, winnerScore)"
 				+ " values (?, ?, ?, ?, ?, ?)";

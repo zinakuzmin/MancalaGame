@@ -1,5 +1,7 @@
 package runner;
 
+import java.io.File;
+
 import client.ClientController;
 import client.UI.ClientLobbyUI;
 import server.MancalaServerController;
@@ -75,17 +77,24 @@ public class Runner extends Application {
 		
 		
 		if (GlobalParams.FAST_START){
-			ClientController clientController1 = new ClientController(new Stage());
-			clientController1.sendLoginMessage("zina1@email.com", "password");
-			ClientLobbyUI lobbyZina1 = new ClientLobbyUI(clientController1);
-			Platform.runLater(lobbyZina1);
 			
-			
-			
-			ClientController clientController2 = new ClientController(new Stage());
-			clientController2.sendLoginMessage("zina2@email.com", "password");
-			ClientLobbyUI lobbyZina2 = new ClientLobbyUI(clientController2);
-			Platform.runLater(lobbyZina2);
+			try{
+				
+				ClientController clientController1 = new ClientController(new Stage());
+				clientController1.sendLoginMessage("zina1@email.com", "password");
+				ClientLobbyUI lobbyZina1 = new ClientLobbyUI(clientController1);
+				Platform.runLater(lobbyZina1);
+				
+				
+				
+				ClientController clientController2 = new ClientController(new Stage());
+				clientController2.sendLoginMessage("zina2@email.com", "password");
+				ClientLobbyUI lobbyZina2 = new ClientLobbyUI(clientController2);
+				Platform.runLater(lobbyZina2);
+			}
+			catch (Exception e){
+				e.printStackTrace();
+			}
 		}
 
 		clientBtn.setOnAction(e -> {
@@ -105,19 +114,24 @@ public class Runner extends Application {
 
 		pane.setCenter(btnHBox);
 
-//		BackgroundImage myBI = new BackgroundImage(new Image(
-//				GlobalParams.IMG_RUNNER_BACKGROUND),
-//				BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT,
-//				BackgroundPosition.CENTER, new BackgroundSize(500, 150, false,
-//						false, false, false));
-//		pane.setBackground(new Background(myBI));
-
-		btnHBox.translateXProperty().bind(pane.widthProperty().divide(4));
+		btnHBox.translateXProperty().bind(pane.widthProperty().divide(6));
 		btnHBox.translateYProperty().bind(pane.heightProperty().add(-100));
 
-		Scene scene = new Scene(pane, 500, 150);
+		Scene scene = new Scene(pane, 300, 150);
 		primaryStage.setTitle("Mancala Game!"); // main pane title
 		primaryStage.setScene(scene);
+		
+		Image titleIcon = new Image(new File("icon.jpg").toURI().toString());
+		primaryStage.getIcons().add(titleIcon);
+		
+		BackgroundImage myBI= new BackgroundImage(new Image(new File("runnerbck.jpg").toURI().toString(),300,150,false,true),
+		        BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.DEFAULT,
+		          BackgroundSize.DEFAULT);
+		//then you set to your node
+		pane.setBackground(new Background(myBI));
+		
+		
+		
 		primaryStage.show(); 
 		primaryStage.setResizable(false);
 		primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>() {

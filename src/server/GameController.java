@@ -50,13 +50,12 @@ public class GameController {
 		String nextTurn = playerTurn;
 
 		// If both users are online
-		if (checkIfUserOnline(player2SessionID)
-				&& checkIfUserOnline(player2SessionID)) {
+		if ((checkIfUserOnline(player2SessionID)
+				&& checkIfUserOnline(player2SessionID)) && movePitIndex != -1) {
 			// check if this is user's turn
 			if (moveSessionID.equals(playerTurn)) {
 
-				// check if game is not completed and there are stones on boths
-				// sides
+				// check if game is not completed and there are stones on both sides
 				if (gameStatus.equals(GameStatusEnum.inProgress)
 						&& !pitsAreEmpty(player1SessionID)
 						&& !pitsAreEmpty(player2SessionID)) {
@@ -67,8 +66,6 @@ public class GameController {
 							&& movePitIndex < PLAYER1_MANCALA_INDEX) {
 						isMoveAllowed = true;
 
-						// Update board
-						updateBoard(moveSessionID, movePitIndex);
 					}
 
 					else if (moveSessionID.equals(player2SessionID)
@@ -76,64 +73,97 @@ public class GameController {
 							&& movePitIndex < PLAYER2_MANCALA_INDEX) {
 						isMoveAllowed = true;
 
-						// Update board
-						updateBoard(moveSessionID, movePitIndex);
 					}
 
 					else
 						isMoveAllowed = false;
 
-					if (isLastStoneMancala(moveSessionID, movePitIndex)) {
-						nextTurn = moveSessionID;
-
-					} else {
-						if (moveSessionID.equals(player1SessionID))
-							nextTurn = player2SessionID;
-						else
-							nextTurn = player1SessionID;
+					if (isMoveAllowed){
+						if (isLastStoneMancala(moveSessionID, movePitIndex)) {
+							nextTurn = moveSessionID;
+							
+						} else {
+							if (moveSessionID.equals(player1SessionID))
+								nextTurn = player2SessionID;
+							else
+								nextTurn = player1SessionID;
+						}
+						
+						
+						// Update board
+						updateBoard(moveSessionID, movePitIndex);
 					}
+					
 
 				} else {
+					//At least one of sides is empty, game is completed
 					gameStatus = GameStatusEnum.competed;
-					if (pits[PLAYER1_MANCALA_INDEX] > pits[PLAYER2_MANCALA_INDEX]) {
-						controller.registerGame(player1SessionID,
-								player2SessionID, player1SessionID,
-								pits[PLAYER1_MANCALA_INDEX]);
-
-					} else if (pits[PLAYER1_MANCALA_INDEX] < pits[PLAYER2_MANCALA_INDEX]) {
-						controller.registerGame(player1SessionID,
-								player2SessionID, player2SessionID,
-								pits[PLAYER2_MANCALA_INDEX]);
-
-					}
-
 				}
 
 			}
 		} else {
 			gameStatus = GameStatusEnum.aborted;
-			controller.registerGame(player1SessionID, player2SessionID,
-					player1SessionID, pits[PLAYER1_MANCALA_INDEX]);
+	
 
 		}
-		System.out.println("Board after update");
-		printBoard(pits);
+//		System.out.println("Board after update");
+//		printBoard(pits);
+		if (isLastMoveCompletedTheGame()){
+			gameStatus = GameStatusEnum.competed;
+			
+		}
 		ServerMakeMoveMsg message = new ServerMakeMoveMsg(isMoveAllowed,pits,nextTurn, player1SessionID, player2SessionID,gameStatus);
 		controller.sendMove(player1SessionID, player2SessionID, message);
+		setPlayerTurn(nextTurn);
+		
+		if (gameStatus.equals(GameStatusEnum.competed) || gameStatus.equals(GameStatusEnum.aborted) || gameStatus.equals(GameStatusEnum.declined)){
+//			controller.registerGame(player1SessionID, player2SessionID,player1SessionID, pits[PLAYER1_MANCALA_INDEX]);
+//			gameStatus = GameStatusEnum.competed;
+			if (pits[PLAYER1_MANCALA_INDEX] > pits[PLAYER2_MANCALA_INDEX]) {
+				controller.registerGame(player1SessionID,
+						player2SessionID, player1SessionID,
+						pits[PLAYER1_MANCALA_INDEX]);
+
+			} else if (pits[PLAYER1_MANCALA_INDEX] < pits[PLAYER2_MANCALA_INDEX]) {
+				controller.registerGame(player1SessionID,
+						player2SessionID, player2SessionID,
+						pits[PLAYER2_MANCALA_INDEX]);
+
+			}
+			
+			controller.gameCompleted(this);
+//			if (gameStatus.equals(GameStatusEnum.aborted) || gameStatus.equals(GameStatusEnum.declined)){
+////				controller.gameCompleted(player1SessionID, player2SessionID);
+//				controller.gameCompleted(this);
+//			}
+					
+			
+			
+			
+		}
+			
+	}
+	
+	public boolean isLastMoveCompletedTheGame(){
+		if (pitsAreEmpty(player1SessionID) || pitsAreEmpty(player2SessionID))
+			return true;
+		return false;
 	}
 
 	private boolean isLastStoneMancala(String moveSessionID, int movePitIndex) {
 		boolean lastStoneMancala = false;
 		int numberOfStones = 0;
 		int startFrom = 0;
+		startFrom = 0 + movePitIndex;
 		if (moveSessionID.equals(player1SessionID)) {
-			startFrom = 0 + movePitIndex;
+			numberOfStones = pits[startFrom];
 			if (numberOfStones % 15 == PLAYER1_MANCALA_INDEX - movePitIndex) {
 				lastStoneMancala = true;
 
 			}
 		} else if (moveSessionID.equals(player2SessionID)) {
-			startFrom = PLAYER1_MANCALA_INDEX + 1 + movePitIndex;
+//			startFrom = PLAYER1_MANCALA_INDEX + 1 + movePitIndex;
+			numberOfStones = pits[startFrom];
 			if (numberOfStones % 15 == PLAYER2_MANCALA_INDEX - movePitIndex) {
 				lastStoneMancala = true;
 			}
@@ -147,8 +177,6 @@ public class GameController {
 		printBoard(pits);
 
 		int startFrom = movePitIndex;
-//		if (moveSessionID.equals(player2SessionID))
-//			startFrom = PLAYER2_MANCALA_INDEX + 1 + movePitIndex;
 		int numberOfStones = pits[startFrom];
 		pits[startFrom++] = 0;
 		while (numberOfStones > 0) {
@@ -206,13 +234,18 @@ public class GameController {
 		boolean pitsAreEmpty = true;
 		if (moveSessionID.equals(player1SessionID)) {
 			for (int i = 0; i < PLAYER1_MANCALA_INDEX; i++) {
-				if (pits[i] != 0)
+				if (pits[i] != 0){
 					pitsAreEmpty = false;
+					break;
+				}
+				
 			}
 		} else {
-			for (int i = PLAYER1_MANCALA_INDEX + 1; i < pits.length; i++) {
-				if (pits[i] != 0)
+			for (int i = PLAYER1_MANCALA_INDEX + 1; i < pits.length - 1; i++) {
+				if (pits[i] != 0){
 					pitsAreEmpty = false;
+					break;
+				}
 			}
 
 		}
@@ -220,12 +253,7 @@ public class GameController {
 		return pitsAreEmpty;
 	}
 
-	private int getNumberOfStones(String moveSessionID, int movePitIndex) {
-		int stones = -1;
-
-		return stones;
-	}
-
+	
 	private int getPitOnOtherSide(int pitIndex) {
 		int oppositSide = -1;
 		switch (pitIndex) {

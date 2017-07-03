@@ -3,12 +3,6 @@ package client.UI;
 import java.io.File;
 import java.io.IOException;
 
-import protocol.ClientConnectMsg;
-import protocol.ClientDisconnectMsg;
-import client.ClientController;
-
-import com.sun.media.jfxmediaimpl.platform.Platform;
-
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -27,13 +21,14 @@ import javafx.scene.layout.BackgroundRepeat;
 import javafx.scene.layout.BackgroundSize;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
+import protocol.ClientDisconnectMsg;
+import client.ClientController;
 
 public class ClientLoginUI extends Application {
 	private ClientController clientController;
@@ -46,22 +41,15 @@ public class ClientLoginUI extends Application {
 	}
 
 	public static void main(String[] args) {
-		Application.launch();
-		// start(new Stage());
-	}
+		Application.launch();	}
 
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 
-		primaryStage.setTitle("Mancala Game");
-		
-//		primaryStage.getIcons().add(new Image("MancalaGame/icon.jpg"));
-//		primaryStage.getIcons().add(new Image("c:\\afeka\\Agile\\MancalaGame\\MancalaGame\\icon.jpg"));
 		Image titleIcon = new Image(new File("icon.jpg").toURI().toString());
 		primaryStage.getIcons().add(titleIcon);
+		primaryStage.setTitle("Mancala Game");
 		
-		
-
 		buildLogin(primaryStage);
 		primaryStage.show();
 
@@ -118,8 +106,6 @@ public class ClientLoginUI extends Application {
 		hbBtnSignUp.setAlignment(Pos.BOTTOM_LEFT);
 		hbBtnSignUp.getChildren().add(btnSignUp);
 		grid.add(hbBtnSignUp, 1, 5);
-
-		// final Text actiontarget = new Text();
 		grid.add(loginResult, 1, 6);
 
 		btn.setOnAction(new EventHandler<ActionEvent>() {
@@ -152,21 +138,20 @@ public class ClientLoginUI extends Application {
 					
 					while (clientController.getOnlineUsers() == null) {
 
-						System.out.println(clientController.getOnlineUsers());
+						System.out.println("Client login UI waiting for list " + clientController.getOnlineUsers());
 						try {
 							Thread.sleep(200);
 						} catch (InterruptedException e1) {
 							e1.printStackTrace();
 						}
 					}
-					ClientLobbyUI lobby = new ClientLobbyUI(clientController);
+					clientController.setLobby(new ClientLobbyUI(clientController));
 					try {
-						lobby.start(primaryStage);
+						clientController.getLobby().start(clientController.getStage());
 					} catch (Exception e1) {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
 					}
-//					loginResult.setText("Logged in");
 				}
 
 			}
@@ -195,7 +180,6 @@ public class ClientLoginUI extends Application {
 					clientController.getServerListener().stopServerListener();
 					clientController.getOut().writeObject(
 							new ClientDisconnectMsg());
-					// clientController.getSocket().close();
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

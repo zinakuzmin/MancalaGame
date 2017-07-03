@@ -1,13 +1,10 @@
 package client;
 
-import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.rmi.server.ServerCloneException;
-import java.util.ArrayList;
 import java.util.Arrays;
-
-import client.UI.ClientLobbyUI;
-import client.UI.GameUI;
+import java.util.Map;
+import javafx.application.Platform;
+import javafx.stage.Stage;
 import model.User;
 import protocol.Message;
 import protocol.ServerClientConnectResponse;
@@ -16,8 +13,8 @@ import protocol.ServerLoginResponseMsg;
 import protocol.ServerMakeMoveMsg;
 import protocol.ServerSignupResponseMsg;
 import server.GameStatusEnum;
-import javafx.application.Platform;
-import javafx.stage.Stage;
+import client.UI.ClientLobbyUI;
+import client.UI.GameUI;
 
 public class ServerListener extends Thread {
 	private ObjectInputStream in;
@@ -52,8 +49,6 @@ public class ServerListener extends Thread {
 				System.out.println("Client " + gameController.getSessionID() + " got message");
 				System.out.println(message);
 
-				
-				
 				if (message instanceof ServerClientConnectResponse) {
 					gameController
 							.setSessionID(((ServerClientConnectResponse) message)
@@ -62,15 +57,11 @@ public class ServerListener extends Thread {
 
 				
 				
-				
-				
 				else if (message instanceof ServerSignupResponseMsg) {
 					gameController
 							.setSignupResult(((ServerSignupResponseMsg) message)
 									.getResult());
 
-					
-					
 					
 					
 				} else if (message instanceof ServerLoginResponseMsg) {
@@ -94,9 +85,10 @@ public class ServerListener extends Thread {
 					
 					
 				} else if (message instanceof ServerConnectedClientsResponse) {
+					Map<String, String> onlineClients = ((ServerConnectedClientsResponse) message)
+							.getConnectedClients();
 					gameController
-							.setOnlineUsers(((ServerConnectedClientsResponse) message)
-									.getConnectedClients());
+							.setOnlineUsers(onlineClients);
 
 				}
 
@@ -132,7 +124,7 @@ public class ServerListener extends Thread {
 							
 
 						}
-						//Move not allowed
+						//Move  allowed
 						else {
 							
 						}
@@ -163,6 +155,7 @@ public class ServerListener extends Thread {
 					} else if (gameStatus.equals(GameStatusEnum.inProgress)) {
 
 						if (((ServerMakeMoveMsg) message).isMoveAllowed()) {
+							
 							if (gameController.getTheGame() != null) {
 								int[] boardFromServer = ((ServerMakeMoveMsg) message)
 										.getPits();
@@ -174,15 +167,19 @@ public class ServerListener extends Thread {
 									public void run() {
 										gameController.setGameStatus(((ServerMakeMoveMsg) message).getGameStatus());
 										gameController.getTheGame().setNextTurn(((ServerMakeMoveMsg) message).getNextTurn());
-										gameController.getTheGame().makeMoveUI(
+										gameController.getTheGame().makeMoveUI(((ServerMakeMoveMsg) message).isMoveAllowed(),
 												boardFromServer, false);
 
 									}
 								});
-								// gameController.getTheGame().makeMoveUI(boardFromServer);
 							} else {
-								GameUI game = new GameUI(gameController, false);
+								GameUI game = new GameUI(gameController, false, gameController.getStage());
 								gameController.setTheGame(game);
+								if (gameController.getLobby()!= null){
+									gameController.getLobby().stop();
+									gameController.getStage().close();
+								}
+							
 								try {
 									Platform.runLater(game);
 									// game.start(new Stage());
@@ -198,29 +195,45 @@ public class ServerListener extends Thread {
 
 									@Override
 									public void run() {
-										gameController.getTheGame().makeMoveUI(
+										gameController.getTheGame().makeMoveUI(((ServerMakeMoveMsg) message).isMoveAllowed(),
 												boardFromServer, false);
 
 									}
 								});
-								// gameController.getTheGame().makeMoveUI(boardFromServer);
-								// gameController.getTheGame().makeMoveUI(((ServerMakeMoveMsg)
-								// message).getPits());
 							}
 						}
-					} else if (gameStatus.equals(GameStatusEnum.youLost)) {
+						else{
+							//move not allowed
+							Platform.runLater(new Runnable() {
 
-					} else if (gameStatus.equals(GameStatusEnum.youWin)) {
+								@Override
+								public void run() {
+									gameController.getTheGame().makeMoveUI(((ServerMakeMoveMsg) message).isMoveAllowed(),
+											((ServerMakeMoveMsg) message).getPits(), false);
 
-					} else if (gameStatus.equals(GameStatusEnum.itsAtie)) {
-
-					} else if (gameStatus.equals(GameStatusEnum.competed) ||  gameStatus.equals(GameStatusEnum.aborted)){
+								}
+							});
+						}
+					
+					} else if (gameStatus.equals(GameStatusEnum.competed)){
 						Platform.runLater(new Runnable() {
 
 							@Override
 							public void run() {
-								gameController.getTheGame().makeMoveUI(
+//								gameController.getTheGame().setGameStatusField(gameStatusField);
+								gameController.getTheGame().makeMoveUI(((ServerMakeMoveMsg) message).isMoveAllowed(),
 										((ServerMakeMoveMsg) message).getPits(), true);
+
+							}
+						});
+					}
+					else if (gameStatus.equals(GameStatusEnum.aborted)){
+						Platform.runLater(new Runnable() {
+
+							@Override
+							public void run() {
+								if (gameController.getTheGame() != null)
+									gameController.getTheGame().abortGame();
 
 							}
 						});

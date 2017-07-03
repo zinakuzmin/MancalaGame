@@ -38,12 +38,10 @@ public class ClientSignupUI extends Application{
 	
 	public static void main(String[] args) {
 		Application.launch();
-//		start(new Stage());
 	}
 
 	@Override
 	public void start(Stage primaryStage) throws Exception {
-
 		primaryStage.setTitle("Sign up page");
 
 		buildSignUp(primaryStage);
@@ -65,7 +63,6 @@ public class ClientSignupUI extends Application{
 		BackgroundImage myBI= new BackgroundImage(new Image(new File("background2.jpg").toURI().toString(),630,630,false,true),
 		        BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.DEFAULT,
 		          BackgroundSize.DEFAULT);
-		//then you set to your node
 		grid.setBackground(new Background(myBI));
 
 		
@@ -106,9 +103,6 @@ public class ClientSignupUI extends Application{
 		hbBtnBackButton.setAlignment(Pos.BOTTOM_RIGHT);
 		hbBtnBackButton.getChildren().add(btnBackButton);
 		grid.add(hbBtnBackButton, 0, 5);
-		
-		
-//		final Text actiontarget = new Text();
         grid.add(signupResult, 1, 6);
         
         btn.setOnAction(new EventHandler<ActionEvent>() {
